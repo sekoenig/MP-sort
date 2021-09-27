@@ -1,6 +1,9 @@
 #ifndef _MPIU_H_
 #define _MPIU_H_
 
+#include <stddef.h>
+#include <mpi.h>
+
 typedef void * (*mpiu_malloc_func)(const char * name, size_t size, const char * file, const int line, void * userdata);
 typedef void (*mpiu_free_func)(void * ptr, const char * file, const int line, void * userdata);
 

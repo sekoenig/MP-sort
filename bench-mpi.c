@@ -8,7 +8,7 @@
 
 #include <mpi.h>
 #include "mpsort.h"
-#include "mpiu.h"
+#include "mp-mpiu.h"
 
 static void radix_int(const void * ptr, void * radix, void * arg) {
     *(uint64_t*)radix = *(const int64_t*) ptr + INT64_MIN;
@@ -87,8 +87,8 @@ check_sorted(int64_t * data, size_t localsize, MPI_Comm comm)
         else
         {
             MPI_Sendrecv(
-                    &data[localsize - 1], 1, MPI_LONG, 
-                    ThisTask + 1, TAG, 
+                    &data[localsize - 1], 1, MPI_LONG,
+                    ThisTask + 1, TAG,
                     &prev, 1, MPI_LONG,
                     ThisTask - 1, TAG, comm, MPI_STATUS_IGNORE);
             break;
@@ -152,14 +152,14 @@ int main(int argc, char * argv[]) {
                 break;
             case 's':
                 /* Set some ranks to zero load */
-                staggered = 1; 
+                staggered = 1;
                 if(ThisTask == 0) {
                     printf("STAGGERED\n");
                 }
                 break;
             case 'S':
                 /* Set some ranks to zero load */
-                staggered = 0; 
+                staggered = 0;
                 if(ThisTask == 0) {
                     printf("NOT STAGGERED\n");
                 }
