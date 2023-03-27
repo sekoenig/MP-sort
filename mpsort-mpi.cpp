@@ -46,6 +46,15 @@ struct crmpistruct {
     int ThisTask;
 };
 
+static inline void
+local_sort(void * base, size_t nmemb, size_t size,
+           void (*radix)(const void * ptr, void * radix, void * arg),
+           size_t rsize,
+           void * arg)
+{
+  radix_sort(base, nmemb, size, radix, rsize, arg);
+}
+
 static void
 _setup_mpsort_mpi(struct crmpistruct * o,
                   struct crstruct * d,
@@ -366,7 +375,7 @@ mpsort_mpi_histogram_sort(struct crstruct d, struct crmpistruct o, struct TIMER 
     (tmr->time = MPI_Wtime(), strcpy(tmr->name, "START"), tmr++);
 
     /* and sort the local array */
-    radix_sort(d.base, d.nmemb, d.size, d.radix, d.rsize, d.arg);
+    local_sort(d.base, d.nmemb, d.size, d.radix, d.rsize, d.arg);
 
     MPI_Barrier(o.comm);
 
@@ -594,7 +603,7 @@ mpsort_mpi_histogram_sort(struct crstruct d, struct crmpistruct o, struct TIMER 
     MPI_Barrier(o.comm);
     (tmr->time = MPI_Wtime(), strcpy(tmr->name, "Exchange"), tmr++);
 
-    radix_sort(o.myoutbase, o.myoutnmemb, d.size, d.radix, d.rsize, d.arg);
+    local_sort(o.myoutbase, o.myoutnmemb, d.size, d.radix, d.rsize, d.arg);
 
     MPI_Barrier(o.comm);
     (tmr->time = MPI_Wtime(), strcpy(tmr->name, "SecondSort"), tmr++);
