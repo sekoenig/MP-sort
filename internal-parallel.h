@@ -136,11 +136,11 @@ struct piter {
 static void piter_init(struct piter * pi,
         unsigned char * Pmin, unsigned char * Pmax, int Plength,
         struct crstruct * d) {
-    pi->stable = malloc(Plength * sizeof(int));
-    pi->narrow = malloc(Plength * sizeof(int));
+    pi->stable = (int*)malloc(Plength * sizeof(int));
+    pi->narrow = (int*)malloc(Plength * sizeof(int));
     pi->d = d;
-    pi->Pleft = malloc(d->rsize * Plength);
-    pi->Pright = malloc(d->rsize * Plength);
+    pi->Pleft = (unsigned char*)malloc(d->rsize * Plength);
+    pi->Pright = (unsigned char*)malloc(d->rsize * Plength);
     pi->Plength = Plength;
 
     int i;
