@@ -7,6 +7,9 @@
 #include <time.h>
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef int (*_compar_fn_t)(const void * r1, const void * r2, size_t rsize);
 typedef void (*_bisect_fn_t)(void * r, const void * r1, const void * r2, size_t rsize);
@@ -30,4 +33,9 @@ void _setup_radix_sort(
         void (*radix)(const void * ptr, void * radix, void * arg),
         size_t rsize,
         void * arg);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

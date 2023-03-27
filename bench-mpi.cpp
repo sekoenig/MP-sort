@@ -17,7 +17,7 @@ static int64_t
 checksum(int64_t * data, size_t localsize, MPI_Comm comm)
 {
     int64_t sum = 0;
-    ptrdiff_t i;
+    size_t i;
     for(i = 0; i < localsize; i ++) {
         sum += data[i];
     }
@@ -31,7 +31,7 @@ generate(int64_t * data, size_t localsize, int bits, int seed)
     /* only keep bits of precision. */
     srandom(seed);
 
-    ptrdiff_t i;
+    size_t i;
     unsigned shift = 64u - bits;
     for(i = 0; i < localsize; i ++) {
         uint64_t value = (int64_t) random() * (int64_t) random() * random() * random();
@@ -42,7 +42,7 @@ generate(int64_t * data, size_t localsize, int bits, int seed)
 static void
 check_sorted(int64_t * data, size_t localsize, MPI_Comm comm)
 {
-    ptrdiff_t i;
+    size_t i;
     int ThisTask, NTask;
     MPI_Comm_rank(comm, &ThisTask);
     MPI_Comm_size(comm, &NTask);
@@ -193,8 +193,8 @@ int main(int argc, char * argv[]) {
         printf("dest size = %ld\n", destsize);
         printf("csize = %ld\n", csize);
     }
-    int64_t * src = malloc(srcsize * sizeof(int64_t));
-    int64_t * dest = malloc(destsize * sizeof(int64_t));
+    int64_t * src = (int64_t*)malloc(srcsize * sizeof(int64_t));
+    int64_t * dest = (int64_t*)malloc(destsize * sizeof(int64_t));
 
     int seed = 9999 * ThisTask;
     generate(src, srcsize, bits, seed);

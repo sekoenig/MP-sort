@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void radix_sort(void * base, size_t nmemb, size_t size,
         void (*radix)(const void * ptr, void * radix, void * arg),
         size_t rsize,
@@ -6,8 +10,8 @@ void radix_sort(void * base, size_t nmemb, size_t size,
 #ifdef _OPENMP
 /* openmp support */
 void mpsort_omp(void * base, size_t nmemb, size_t size,
-        void (*radix)(const void * ptr, void * radix, void * arg), 
-        size_t rsize, 
+        void (*radix)(const void * ptr, void * radix, void * arg),
+        size_t rsize,
         void * arg);
 
 #endif
@@ -54,3 +58,8 @@ void mpsort_mpi_report_last_run();
 #warning MPSORT: If your application misbehaves, consider recompiling fresh with gcc to rule out compiler bugs.
 #endif
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+

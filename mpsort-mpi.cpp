@@ -8,8 +8,8 @@
 
 #include <mpi.h>
 
-#include "mpsort.h"
 #include "internal.h"
+#include "mpsort.h"
 
 #include "mp-mpiu.h"
 #include "internal-parallel.h"
@@ -149,7 +149,7 @@ static uint64_t
 checksum(void * base, ptrdiff_t nbytes, MPI_Comm comm)
 {
     uint64_t sum = 0;
-    char * ptr = base;
+    char * ptr = reinterpret_cast<char*>(base);
     ptrdiff_t i = 0;
     for(i = 0; i < nbytes; i ++) {
         sum += ptr[i];
@@ -569,9 +569,9 @@ mpsort_mpi_histogram_sort(struct crstruct d, struct crmpistruct o, struct TIMER 
     }
 #endif
     if(o.myoutbase == o.mybase)
-        buffer = MPIU_Malloc("buffer", d.size, o.myoutnmemb);
+        buffer = reinterpret_cast<char*>(MPIU_Malloc("buffer", d.size, o.myoutnmemb));
     else
-        buffer = o.myoutbase;
+        buffer = reinterpret_cast<char*>(o.myoutbase);
 
     enum MPIU_AlltoallvSparsePolicy policy = AUTO;
     if (mpsort_mpi_has_options(MPSORT_DISABLE_SPARSE_ALLTOALLV)) {
