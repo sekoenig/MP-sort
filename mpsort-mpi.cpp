@@ -14,6 +14,10 @@
 #include "mp-mpiu.h"
 #include "internal-parallel.h"
 
+#include <array>
+
+#include <tbb/parallel_sort.h>
+
 static int _mpsort_mpi_options = 0;
 
 /* mpi version of radix sort;
@@ -46,13 +50,54 @@ struct crmpistruct {
     int ThisTask;
 };
 
+using data2_t = std::array<uint8_t, 2>;
+using data4_t = std::array<uint8_t, 4>;
+using data8_t = std::array<uint8_t, 8>;
+using data12_t = std::array<uint8_t, 12>;
+using data16_t = std::array<uint8_t, 16>;
+using data20_t = std::array<uint8_t, 20>;
+using data24_t = std::array<uint8_t, 24>;
+using data28_t = std::array<uint8_t, 28>;
+using data32_t = std::array<uint8_t, 32>;
+
+#define HANDLE_LOCAL_PARALLEL_SORT(n, type)        \
+case (n):                                          \
+{                                                  \
+  auto *data_base = reinterpret_cast<type*>(base); \
+                                                   \
+  tbb::parallel_sort(                              \
+    data_base, data_base + nmemb,                  \
+    [=](const type &a, const type &b)              \
+    {                                              \
+      uint64_t rad_a = 0; radix(&a, &rad_a, arg);  \
+      uint64_t rad_b = 0; radix(&b, &rad_b, arg);  \
+                                                   \
+      return rad_a < rad_b;                        \
+    }                                              \
+  );                                               \
+}                                                  \
+break
+
 static inline void
 local_sort(void * base, size_t nmemb, size_t size,
            void (*radix)(const void * ptr, void * radix, void * arg),
            size_t rsize,
            void * arg)
 {
-  radix_sort(base, nmemb, size, radix, rsize, arg);
+  switch (size)
+  {
+    HANDLE_LOCAL_PARALLEL_SORT(2, data2_t);
+    HANDLE_LOCAL_PARALLEL_SORT(4, data4_t);
+    HANDLE_LOCAL_PARALLEL_SORT(8, data8_t);
+    HANDLE_LOCAL_PARALLEL_SORT(12, data12_t);
+    HANDLE_LOCAL_PARALLEL_SORT(16, data16_t);
+    HANDLE_LOCAL_PARALLEL_SORT(20, data20_t);
+    HANDLE_LOCAL_PARALLEL_SORT(24, data24_t);
+    HANDLE_LOCAL_PARALLEL_SORT(28, data28_t);
+    HANDLE_LOCAL_PARALLEL_SORT(32, data32_t);
+
+    default: radix_sort(base, nmemb, size, radix, rsize, arg);
+  }
 }
 
 static void
