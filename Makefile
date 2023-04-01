@@ -20,9 +20,9 @@ tests: main main-mpi bench-mpi
 main: main.c libmpsort-omp.a libradixsort.a
 	$(CC) $(CFLAGS) -o main $^
 main-mpi: main-mpi.cpp libmpsort-mpi.a libradixsort.a
-	$(MPICXX) $(CFLAGS) -o main-mpi $^
+	$(MPICXX) $(CFLAGS) -o main-mpi $^ -ltbb -ltbbmalloc
 bench-mpi: bench-mpi.cpp libmpsort-mpi.a libradixsort.a mp-mpiu.h
-	$(MPICXX) $(CFLAGS) -o bench-mpi $^
+	$(MPICXX) $(CFLAGS) -o bench-mpi $^ -ltbb -ltbbmalloc
 test-issue7: test-issue7.cpp libmpsort-mpi.a libradixsort.a
 	$(MPICXX) $(CFLAGS) -o test-issue7 $^
 
