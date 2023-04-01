@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+#include <tbb/parallel_for.h>
+#endif
+
 /*
  * returns index of the last item satisfying
  * [item] < P,
@@ -167,9 +171,14 @@ static void piter_destroy(struct piter * pi) {
  * */
 static void piter_bisect(struct piter * pi, unsigned char * P) {
     struct crstruct * d = pi->d;
+#ifdef __cplusplus
+    tbb::parallel_for<int>(0, pi->Plength, [&](int i) {
+        if(pi->stable[i]) return;
+#else
     int i;
     for(i = 0; i < pi->Plength; i ++) {
         if(pi->stable[i]) continue;
+#endif
         if(pi->narrow[i]) {
             /* The last iteration, test Pright directly */
             memcpy(&P[i * d->rsize],
@@ -195,6 +204,9 @@ static void piter_bisect(struct piter * pi, unsigned char * P) {
                 *(int*) &pi->Pright[i * d->rsize]);
 #endif
     }
+#ifdef __cplusplus
+    );
+#endif
 }
 static int piter_all_done(struct piter * pi) {
     int i;
