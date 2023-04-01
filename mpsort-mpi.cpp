@@ -17,6 +17,7 @@
 #include <array>
 
 #include <tbb/parallel_sort.h>
+#include <tbb/parallel_reduce.h>
 
 static int _mpsort_mpi_options = 0;
 
@@ -202,12 +203,22 @@ mpsort_mpi_histogram_sort(struct crstruct d, struct crmpistruct o, struct TIMER 
 static uint64_t
 checksum(void * base, ptrdiff_t nbytes, MPI_Comm comm)
 {
-    uint64_t sum = 0;
     char * ptr = reinterpret_cast<char*>(base);
-    ptrdiff_t i = 0;
-    for(i = 0; i < nbytes; i ++) {
-        sum += ptr[i];
-    }
+
+    uint64_t sum = tbb::parallel_reduce(
+        tbb::blocked_range<size_t>(0, nbytes),
+        uint64_t(0),
+        [&](tbb::blocked_range<size_t> range, uint64_t acc)
+        {
+          for (size_t i = range.begin(); i < range.end(); ++i) {
+            acc += ptr[i];
+          }
+
+          return acc;
+        },
+        std::plus<size_t>()
+    );
+
     MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_LONG, MPI_SUM, comm);
     return sum;
 }
